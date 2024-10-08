@@ -1,8 +1,11 @@
 const n=`<template>\r
   <div class="container">\r
     <div class="btn_wrapper">\r
-      <el-button type="default" size="small" @click="toggleSnow(true)">开启</el-button>\r
-      <el-button type="primary" size="small" @click="toggleSnow(false)">关闭</el-button>\r
+      <el-button type="default" size="small" @click="toggleSkybox('blue-sky')">蓝天</el-button>\r
+      <el-button type="default" size="small" @click="toggleSkybox('sun')">晴天</el-button>\r
+      <el-button type="default" size="small" @click="toggleSkybox('sunset-glow')">晚霞</el-button>\r
+      <el-button type="default" size="small" @click="toggleSkybox('night')">夜晚</el-button>\r
+      <el-button type="default" size="small" @click="toggleSkybox('normal')">关闭</el-button>\r
     </div>\r
     <div class="cesiumContainer" id="cesiumContainer"></div>\r
   </div>\r
@@ -12,11 +15,12 @@ const n=`<template>\r
 import * as Cesium from 'cesium'\r
 import { onMounted } from 'vue'\r
 \r
-let snow\r
+let viewer\r
+\r
 onMounted(async () => {\r
   Cesium.Ion.defaultAccessToken =\r
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmZTA1MDQ2NC0wZmYwLTRhZWMtYWY4OC1jY2JkMDU1NjVmOGMiLCJpZCI6NDM0MzQsImlhdCI6MTY0OTkzNjc0Mn0.nafX1X_3586auU738TC3DxvsiSvPxnQ3TmamqUkb8kw'\r
-  const viewer = new Cesium.Viewer('cesiumContainer', {\r
+  viewer = new Cesium.Viewer('cesiumContainer', {\r
     timeline: false, // 是否显示时间轴\r
     fullscreenButton: false, // 是否显示全屏按钮\r
     animation: false, // 是否创建动画小器件，左下角仪表\r
@@ -37,48 +41,42 @@ onMounted(async () => {\r
     Cesium.CameraEventType.WHEEL,\r
     Cesium.CameraEventType.PINCH\r
   ]\r
-  // 3dtiles\r
-  const scene = viewer.scene\r
-  const resource = await Cesium.IonResource.fromAssetId(1633341)\r
-  const tileset = await Cesium.Cesium3DTileset.fromUrl(resource)\r
-  changeHeight(tileset, 60)\r
-  scene.primitives.add(tileset)\r
-  viewer.flyTo(tileset, {\r
-    duration: 0\r
+\r
+  const position = Cesium.Cartesian3.fromDegrees(113.297730, 23.060679, 5000)\r
+  viewer.camera.setView({\r
+    destination: position,\r
+    orientation: {\r
+      heading: 0,\r
+      pitch: Cesium.Math.toRadians(-10),\r
+      roll: 0\r
+    }\r
   })\r
-  snow = new Snow(viewer)\r
-  snow.open()\r
+\r
+  toggleSkybox('blue-sky')\r
 })\r
 \r
-function toggleSnow(flag) {\r
-  if (flag) {\r
-    snow.open()\r
-  } else {\r
-    snow.close()\r
+function toggleSkybox(type) {\r
+  const skyboxConf = {\r
+    'blue-sky': GroundSkyBoxBlueSky,\r
+    'sun': GroundSkyBoxSun,\r
+    'sunset-glow': GroundSkyBoxSunsetGlow,\r
+    'night': GroundSkyBoxNight\r
   }\r
+  const skyboxResource = skyboxConf[type]\r
+  if (!skyboxResource) {\r
+    currentSkyBox.destroy()\r
+    return\r
+  }\r
+  // 天空盒\r
+  const defaultSkyBox = viewer.scene.skyBox\r
+  const currentSkyBox = new GroundSkyBox(viewer, {\r
+    sources: skyboxResource,\r
+    defaultSkyBox: defaultSkyBox\r
+  })\r
+  viewer.scene.skyBox = currentSkyBox\r
+  currentSkyBox.renderer(currentSkyBox)\r
 }\r
 \r
-function changeHeight(tileset, height) {\r
-  const cartographic = Cesium.Cartographic.fromCartesian(\r
-    tileset.boundingSphere.center\r
-  )\r
-  const surface = Cesium.Cartesian3.fromRadians(\r
-    cartographic.longitude,\r
-    cartographic.latitude,\r
-    0.0\r
-  )\r
-  const offset = Cesium.Cartesian3.fromRadians(\r
-    cartographic.longitude,\r
-    cartographic.latitude,\r
-    height\r
-  )\r
-  const translation = Cesium.Cartesian3.subtract(\r
-    offset,\r
-    surface,\r
-    new Cesium.Cartesian3()\r
-  )\r
-  tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation)\r
-}\r
 <\/script>\r
 <style scoped>\r
 .container {\r
@@ -97,5 +95,6 @@ function changeHeight(tileset, height) {\r
     z-index: 1;\r
   }\r
 }\r
+\r
 </style>\r
 `;export{n as default};

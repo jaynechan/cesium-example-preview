@@ -1,8 +1,8 @@
 const e=`<template>\r
   <div class="container">\r
     <div class="btn_wrapper">\r
-      <el-button type="primary" size="small" @click="toggleLayer('img')">影像</el-button>\r
-      <el-button type="primary" size="small" @click="toggleLayer('vec')">电子地图</el-button>\r
+      <el-button type="primary" size="small" @click="toggleLayer('img')">世界地图</el-button>\r
+      <el-button type="primary" size="small" @click="toggleLayer('elec')">电子地图</el-button>\r
     </div>\r
     <div class="cesiumContainer" id="cesiumContainer"></div>\r
   </div>\r
@@ -12,26 +12,32 @@ const e=`<template>\r
 import * as Cesium from 'cesium'\r
 import { onMounted, ref } from 'vue'\r
 \r
-const selectedType = ref('vec')\r
+const selectedType = ref('elec')\r
 let viewer\r
 let currentLayer\r
 \r
-const layerConfig = {\r
-  'img': 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',\r
-  'vec': 'https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer'\r
-}\r
-const toggleLayer = async (type, isInitializing = false) => {\r
+const toggleLayer = (type, isInitializing = false) => {\r
   if (selectedType.value === type && !isInitializing) return\r
   if (currentLayer) {\r
     viewer.imageryLayers.remove(currentLayer)\r
   }\r
   selectedType.value = type\r
-  const url = layerConfig[type]\r
-  const imageryProvider = await Cesium.ArcGisMapServerImageryProvider.fromUrl(url)\r
-  currentLayer = viewer.imageryLayers.addImageryProvider(imageryProvider)\r
+  if (type === 'img') {\r
+    const imageryProvider = new SuperMapImagryProvider({\r
+      url: 'https://www.supermapol.com/realspace/services/map-sample/rest/maps/WorldMap',\r
+      epsgcode: 4326\r
+    })\r
+    currentLayer = viewer.imageryLayers.addImageryProvider(imageryProvider.delegate)\r
+  } else {\r
+    const imageryProvider = new SuperMapImagryProvider({\r
+      url: 'https://www.supermapol.com/realspace/services/map-China400/rest/maps/China400',\r
+      epsgcode: 3857\r
+    })\r
+    currentLayer = viewer.imageryLayers.addImageryProvider(imageryProvider.delegate)\r
+  }\r
 }\r
 \r
-onMounted(async () => {\r
+onMounted(() => {\r
   viewer = new Cesium.Viewer('cesiumContainer', {\r
     animation: false, // 是否创建动画小器件，左下角仪表\r
     baseLayerPicker: false, // 是否显示图层选择器\r
@@ -59,9 +65,9 @@ onMounted(async () => {\r
   viewer.camera.flyTo({\r
     destination: rectangle,\r
     orientation: {\r
-      heading: Math.toRadians(0),\r
-      pitch: Math.toRadians(-90),\r
-      roll: Math.toRadians(0)\r
+      heading: Cesium.Math.toRadians(0),\r
+      pitch: Cesium.Math.toRadians(-90),\r
+      roll: Cesium.Math.toRadians(0)\r
     },\r
     duration: 0\r
   })\r
