@@ -1,0 +1,1 @@
+function n(n,r){return n<r?-1:n>r?1:n>=r?0:NaN}var r,t;function e(n){for(var r,t,e,o=n.length,f=-1,u=0;++f<o;)u+=n[f].length;for(t=new Array(u);--o>=0;)for(r=(e=n[o]).length;--r>=0;)t[--u]=e[r];return t}1===(r=n).length&&(t=r,r=function(r,e){return n(t(r),e)});export{e as m};
