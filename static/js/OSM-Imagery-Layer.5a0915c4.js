@@ -1,14 +1,37 @@
 const e=`<template>\r
   <div class="container">\r
+    <div class="btn_wrapper">\r
+      <el-button type="default" size="small" @click="toggleLayer('dark_vec')">黑色地图</el-button>\r
+      <el-button type="default" size="small" @click="toggleLayer('gray_vec')">亮色地图</el-button>\r
+      <el-button type="default" size="small" @click="toggleLayer('normal_vec')">标准地图</el-button>\r
+    </div>\r
     <div class="cesiumContainer" id="cesiumContainer"></div>\r
   </div>\r
 </template>\r
 \r
 <script setup>\r
 import * as Cesium from 'cesium'\r
-import { onMounted } from 'vue'\r
+import { onMounted, ref } from 'vue'\r
 \r
+const selectedType = ref('dark_vec')\r
 let viewer\r
+let currentLayer\r
+\r
+const layerConfig = {\r
+  'dark_vec': 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',\r
+  'gray_vec': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',\r
+  'normal_vec': 'https://tile-{s}.openstreetmap.fr/hot/{z}/{x}/{y}.png'\r
+}\r
+const toggleLayer = (type, isInitializing = false) => {\r
+  if (selectedType.value === type && !isInitializing) return\r
+  if (currentLayer) {\r
+    viewer.imageryLayers.remove(currentLayer)\r
+  }\r
+  selectedType.value = type\r
+  const url = layerConfig[type]\r
+  const imageryProvider = new Cesium.UrlTemplateImageryProvider({ url })\r
+  currentLayer = viewer.imageryLayers.addImageryProvider(imageryProvider)\r
+}\r
 \r
 onMounted(() => {\r
   viewer = new Cesium.Viewer('cesiumContainer', {\r
@@ -30,20 +53,18 @@ onMounted(() => {\r
   })\r
   viewer.scene.globe.maximumScreenSpaceError = 1.4 // 减少屏幕空间误差，提高渲染质量\r
 \r
-  const imageryProvider = new Cesium.OpenStreetMapImageryProvider({\r
-    url: '//a.tile.openstreetmap.org/'\r
-  })\r
-  viewer.imageryLayers.addImageryProvider(imageryProvider)\r
+  // 切换图层\r
+  toggleLayer(selectedType.value, true)\r
 \r
-  const position = Cesium.Cartesian3.fromDegrees(113.297730, 23.060679, 50000)\r
-  viewer.camera.setView({\r
-    destination: position,\r
-    orientation: {\r
-      heading: 0,\r
-      pitch: Cesium.Math.toRadians(-90),\r
-      roll: 0\r
-    }\r
-  })\r
+  // const position = Cesium.Cartesian3.fromDegrees(113.297730, 23.060679, 50000)\r
+  // viewer.camera.setView({\r
+  //   destination: position,\r
+  //   orientation: {\r
+  //     heading: 0,\r
+  //     pitch: Cesium.Math.toRadians(-90),\r
+  //     roll: 0\r
+  //   }\r
+  // })\r
 })\r
 <\/script>\r
 <style scoped>\r
@@ -51,10 +72,18 @@ onMounted(() => {\r
   position: relative;\r
   width: 100%;\r
   height: 100%;\r
+\r
   .cesiumContainer {\r
     width: 100%;\r
     height: 100%;\r
     overflow: hidden\r
+  }\r
+\r
+  .btn_wrapper {\r
+    position: absolute;\r
+    left: 50px;\r
+    top: 10px;\r
+    z-index: 1;\r
   }\r
 }\r
 </style>\r
