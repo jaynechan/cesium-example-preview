@@ -1,0 +1,64 @@
+[
+  {
+    "id": "1",
+    "name": "基础测绘",
+    "layerUrl": "",
+    "layerType": "",
+    "type": 1,
+    "children": [
+      {
+        "id": "12",
+        "name": "杭州白膜",
+        "layerUrl": "http://10.0.1.35/czm/jy/binjianglu/tileset.json",
+        "layerType": "3DTiles",
+        "isShow": 0,
+        "type": 2
+      },
+      {
+        "id": "2",
+        "name": "滨江路东外环路延陵路",
+        "layerUrl": "http://10.0.1.35/czm/jy/binjianglu/tileset.json",
+        "layerType": "3DTiles",
+        "isShow": 0,
+        "type": 2
+      },
+      {
+        "id": "3",
+        "name": "万达广场周边",
+        "layerUrl": "http://10.0.1.35/czm/jy/wanda/tileset.json",
+        "layerType": "3DTiles",
+        "isShow": 0,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "4",
+    "name": "国土空间规划",
+    "layerUrl": "",
+    "layerType": "",
+    "type": 1,
+    "children": [
+      {
+        "id": "5",
+        "name": "控制性详细规划",
+        "layerUrl": "http://10.0.1.35/czm/jy/JYKG_DKGH/tileset.json",
+        "layerType": "3DTiles",
+        "type": 2,
+        "isShow": 0,
+        "layerField": "GHDK",
+        "layerHeight": 8
+      },
+      {
+        "id": "6",
+        "name": "道路红线",
+        "layerUrl": "http://10.0.1.35/czm/jy/DLM/tileset.json",
+        "layerType": "3DTiles",
+        "layerField": "road",
+        "isShow": 0,
+        "type": 2,
+        "layerHeight": 8
+      }
+    ]
+  }
+]
