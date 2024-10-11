@@ -14,8 +14,7 @@ import { onMounted } from 'vue'\r
 \r
 let fog\r
 onMounted(async () => {\r
-  Cesium.Ion.defaultAccessToken =\r
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmZTA1MDQ2NC0wZmYwLTRhZWMtYWY4OC1jY2JkMDU1NjVmOGMiLCJpZCI6NDM0MzQsImlhdCI6MTY0OTkzNjc0Mn0.nafX1X_3586auU738TC3DxvsiSvPxnQ3TmamqUkb8kw'\r
+  Cesium.Ion.defaultAccessToken = CesiumAccessTokenConf.accessToken\r
   const viewer = new Cesium.Viewer('cesiumContainer', {\r
     timeline: false, // 是否显示时间轴\r
     fullscreenButton: false, // 是否显示全屏按钮\r
@@ -39,7 +38,7 @@ onMounted(async () => {\r
   ]\r
   // 3dtiles\r
   const scene = viewer.scene\r
-  const resource = await Cesium.IonResource.fromAssetId(1633341)\r
+  const resource = await Cesium.IonResource.fromAssetId(CesiumIonAssetConf.WZ_3DTILES)\r
   const tileset = await Cesium.Cesium3DTileset.fromUrl(resource)\r
   changeHeight(tileset, 60)\r
   scene.primitives.add(tileset)\r

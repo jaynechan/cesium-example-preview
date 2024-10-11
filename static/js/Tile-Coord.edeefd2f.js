@@ -7,7 +7,7 @@ import * as Cesium from 'cesium'\r
 import { onMounted } from 'vue'\r
 \r
 onMounted(() => {\r
-  Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0ZTgxZDQzNi1kZDJhLTQ4MDItYmE3MC0xMmRhYTJlNDViYzQiLCJpZCI6NDM0MzQsImlhdCI6MTY3NzEzMjQwNn0.LUp8czTsGuciTiyYSkA3JxK9gxTy-VYmIcFcS2ow134'\r
+  Cesium.Ion.defaultAccessToken = CesiumAccessTokenConf.accessToken\r
   const viewer = new Cesium.Viewer('cesiumContainer', {\r
     timeline: false, // 是否显示时间轴\r
     fullscreenButton: false // 是否显示全屏按钮\r

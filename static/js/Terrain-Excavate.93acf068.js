@@ -1,13 +1,10 @@
-const n=`<template>\r
+const r=`<template>\r
   <div class="container">\r
     <div class="btn_wrapper">\r
-      <el-button type="default" size="small" @click="start()">开始</el-button>\r
-      <el-button type="default" size="small" @click="exit()">停止</el-button>\r
+      <el-button type="primary" size="small" @click="start()">开始</el-button>\r
+      <el-button type="primary" size="small" @click="exit()">退出</el-button>\r
     </div>\r
     <div class="cesiumContainer" id="cesiumContainer">\r
-      <InfoDialog title="图层目录">\r
-        <LayerTree/>\r
-      </InfoDialog>>\r
     </div>\r
   </div>\r
 </template>\r
@@ -15,16 +12,20 @@ const n=`<template>\r
 <script setup>\r
 import * as Cesium from 'cesium'\r
 import { onMounted } from 'vue'\r
-const { setMainViewer } = useViewerHook()\r
 \r
-let viewer, pointLookAround\r
+let viewer, terrainExcavate\r
 \r
 const start = () => {\r
-  pointLookAround && pointLookAround.start()\r
+  if (!terrainExcavate) {\r
+    terrainExcavate = new Analysis.TerrainExcavate(viewer)\r
+  }\r
+  terrainExcavate.execute(60)\r
 }\r
 \r
 const exit = () => {\r
-  pointLookAround && pointLookAround.exit()\r
+  if (terrainExcavate) {\r
+    terrainExcavate.clear()\r
+  }\r
 }\r
 \r
 onMounted(async () => {\r
@@ -43,35 +44,47 @@ onMounted(async () => {\r
     navigationHelpButton: false, // 是否显示右上角的帮助按钮\r
     navigationInstructionsInitiallyVisible: false,\r
     scene3DOnly: false, // 如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源\r
-    shouldAnimate: false // 初始化是否开始动画\r
+    shouldAnimate: false, // 初始化是否开始动画\r
+    contextOptions: { webgl: { alpha: true, preserveDrawingBuffer: true }, requestWebgl1: true } // webgl1\r
   })\r
-  setMainViewer(viewer)\r
 \r
-  const position = Cesium.Cartesian3.fromDegrees(113.297730, 23.060679, 5000)\r
+  const control = viewer.scene.screenSpaceCameraController\r
+  control.tiltEventTypes = Cesium.CameraEventType.RIGHT_DRAG\r
+  control.zoomEventTypes = [\r
+    Cesium.CameraEventType.WHEEL,\r
+    Cesium.CameraEventType.PINCH\r
+  ]\r
+\r
+  const position = Cesium.Cartesian3.fromDegrees(113.297730, 23.060679, 500)\r
   viewer.camera.setView({\r
     destination: position,\r
     orientation: {\r
       heading: 0,\r
-      pitch: Cesium.Math.toRadians(-15),\r
+      pitch: Cesium.Math.toRadians(-65),\r
       roll: 0\r
     }\r
   })\r
-\r
-  // 定点环绕\r
-  pointLookAround = new MapTools.PointLookAround(viewer)\r
+  try {\r
+    const url = 'https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer'\r
+    const terrainProvider = await Cesium.ArcGISTiledElevationTerrainProvider.fromUrl(url)\r
+    viewer.terrainProvider = terrainProvider\r
+  } catch (error) {\r
+    ElMessage.error(\`Failed to add world imagery: \${error}\`)\r
+  }\r
 })\r
-\r
 <\/script>\r
 <style scoped>\r
 .container {\r
   position: relative;\r
   width: 100%;\r
   height: 100%;\r
+\r
   .cesiumContainer {\r
     width: 100%;\r
     height: 100%;\r
     overflow: hidden\r
   }\r
+\r
   .btn_wrapper {\r
     position: absolute;\r
     left: 50px;\r
@@ -80,4 +93,4 @@ onMounted(async () => {\r
   }\r
 }\r
 </style>\r
-`;export{n as default};
+`;export{r as default};

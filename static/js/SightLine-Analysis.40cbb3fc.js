@@ -1,13 +1,17 @@
 const n=`<template>\r
   <div class="container">\r
-    <div class="mask"></div>\r
-    <div class="cesiumContainer" id="cesiumContainer"></div>\r
+    <div class="cesiumContainer" id="cesiumContainer">\r
+      <InfoDialog title="通视分析" class="dialog">\r
+        <SightLine />\r
+      </InfoDialog>>\r
+    </div>\r
   </div>\r
 </template>\r
 \r
 <script setup>\r
 import * as Cesium from 'cesium'\r
 import { onMounted } from 'vue'\r
+const { setMainViewer } = useViewerHook()\r
 \r
 let viewer\r
 \r
@@ -29,60 +33,69 @@ onMounted(async () => {\r
     scene3DOnly: false, // 如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源\r
     shouldAnimate: false // 初始化是否开始动画\r
   })\r
+\r
+  const control = viewer.scene.screenSpaceCameraController\r
+  control.tiltEventTypes = Cesium.CameraEventType.RIGHT_DRAG\r
+  control.zoomEventTypes = [\r
+    Cesium.CameraEventType.WHEEL,\r
+    Cesium.CameraEventType.PINCH\r
+  ]\r
+\r
+  setMainViewer(viewer)\r
+\r
   // 3dtiles\r
   const scene = viewer.scene\r
-  const resource = await Cesium.IonResource.fromAssetId(1633341)\r
+  const resource = await Cesium.IonResource.fromAssetId(CesiumIonAssetConf.WZ_3DTILES)\r
   const tileset = await Cesium.Cesium3DTileset.fromUrl(resource)\r
   changeHeight(tileset, 60)\r
   scene.primitives.add(tileset)\r
-  viewer.flyTo(tileset, {\r
-    duration: 0\r
-  })\r
+  viewer.zoomTo(tileset)\r
+\r
+  function changeHeight(tileset, height) {\r
+    const cartographic = Cesium.Cartographic.fromCartesian(\r
+      tileset.boundingSphere.center\r
+    )\r
+    const surface = Cesium.Cartesian3.fromRadians(\r
+      cartographic.longitude,\r
+      cartographic.latitude,\r
+      0.0\r
+    )\r
+    const offset = Cesium.Cartesian3.fromRadians(\r
+      cartographic.longitude,\r
+      cartographic.latitude,\r
+      height\r
+    )\r
+    const translation = Cesium.Cartesian3.subtract(\r
+      offset,\r
+      surface,\r
+      new Cesium.Cartesian3()\r
+    )\r
+    tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation)\r
+  }\r
 })\r
 \r
-function changeHeight(tileset, height) {\r
-  const cartographic = Cesium.Cartographic.fromCartesian(\r
-    tileset.boundingSphere.center\r
-  )\r
-  const surface = Cesium.Cartesian3.fromRadians(\r
-    cartographic.longitude,\r
-    cartographic.latitude,\r
-    0.0\r
-  )\r
-  const offset = Cesium.Cartesian3.fromRadians(\r
-    cartographic.longitude,\r
-    cartographic.latitude,\r
-    height\r
-  )\r
-  const translation = Cesium.Cartesian3.subtract(\r
-    offset,\r
-    surface,\r
-    new Cesium.Cartesian3()\r
-  )\r
-  tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation)\r
-}\r
 <\/script>\r
 <style scoped>\r
 .container {\r
+  position: relative;\r
   width: 100%;\r
   height: 100%;\r
-  overflow: hidden;\r
-  position: relative;\r
 \r
   .cesiumContainer {\r
     width: 100%;\r
     height: 100%;\r
-    overflow: hidden;\r
+    overflow: hidden\r
   }\r
 \r
-  .mask {\r
+  .btn_wrapper {\r
     position: absolute;\r
-    top: 0px;\r
-    width: 100%;\r
-    height: 100%;\r
-    pointer-events: none;\r
+    left: 50px;\r
+    top: 10px;\r
     z-index: 1;\r
-    background-image: radial-gradient(rgba(139, 138, 138, 0.22) 50%, rgba(65, 57, 57, 0.66) 70%, rgb(17, 16, 16) 90%);\r
+  }\r
+\r
+  .dialog {\r
+    width: 500px;\r
   }\r
 }\r
 </style>\r

@@ -1,4 +1,4 @@
-const n=`<template>\r
+const e=`<template>\r
   <div class="container">\r
     <div class="btn_wrapper">\r
       <el-button type="default" size="small" @click="toggleSkybox('blue-sky')">蓝天</el-button>\r
@@ -18,8 +18,7 @@ import { onMounted } from 'vue'\r
 let viewer\r
 \r
 onMounted(async () => {\r
-  Cesium.Ion.defaultAccessToken =\r
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmZTA1MDQ2NC0wZmYwLTRhZWMtYWY4OC1jY2JkMDU1NjVmOGMiLCJpZCI6NDM0MzQsImlhdCI6MTY0OTkzNjc0Mn0.nafX1X_3586auU738TC3DxvsiSvPxnQ3TmamqUkb8kw'\r
+  Cesium.Ion.defaultAccessToken = CesiumAccessTokenConf.accessToken\r
   viewer = new Cesium.Viewer('cesiumContainer', {\r
     timeline: false, // 是否显示时间轴\r
     fullscreenButton: false, // 是否显示全屏按钮\r
@@ -57,10 +56,10 @@ onMounted(async () => {\r
 \r
 function toggleSkybox(type) {\r
   const skyboxConf = {\r
-    'blue-sky': GroundSkyBoxBlueSky,\r
-    'sun': GroundSkyBoxSun,\r
-    'sunset-glow': GroundSkyBoxSunsetGlow,\r
-    'night': GroundSkyBoxNight\r
+    'blue-sky': SkyBoxResource.GroundSkyBoxBlueSky,\r
+    'sun': SkyBoxResource.GroundSkyBoxSun,\r
+    'sunset-glow': SkyBoxResource.GroundSkyBoxSunsetGlow,\r
+    'night': SkyBoxResource.GroundSkyBoxNight\r
   }\r
   const skyboxResource = skyboxConf[type]\r
   if (!skyboxResource) {\r
@@ -97,4 +96,4 @@ function toggleSkybox(type) {\r
 }\r
 \r
 </style>\r
-`;export{n as default};
+`;export{e as default};
