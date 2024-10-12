@@ -1,4 +1,4 @@
-const r=`<template>\r
+const e=`<template>\r
   <div class="container">\r
     <div class="btn_wrapper">\r
       <el-button type="primary" size="small" @click="start()">开始</el-button>\r
@@ -64,13 +64,21 @@ onMounted(async () => {\r
       roll: 0\r
     }\r
   })\r
+  viewer.scene.globe.depthTestAgainstTerrain = true\r
   try {\r
-    const url = 'https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer'\r
-    const terrainProvider = await Cesium.ArcGISTiledElevationTerrainProvider.fromUrl(url)\r
+    const terrainProvider = await Cesium.createWorldTerrainAsync({\r
+      requestWaterMask: true,\r
+      requestVertexNormals: true\r
+    })\r
     viewer.terrainProvider = terrainProvider\r
   } catch (error) {\r
     ElMessage.error(\`Failed to add world imagery: \${error}\`)\r
   }\r
+  const tileset = await Cesium.Cesium3DTileset.fromUrl('http://mapgl.com/data/model/max-guanwang/tileset.json')\r
+  viewer.scene.primitives.add(tileset)\r
+  viewer.flyTo(tileset, {\r
+    duration: 1\r
+  })\r
 })\r
 <\/script>\r
 <style scoped>\r
@@ -93,4 +101,4 @@ onMounted(async () => {\r
   }\r
 }\r
 </style>\r
-`;export{r as default};
+`;export{e as default};

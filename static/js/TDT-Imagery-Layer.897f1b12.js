@@ -12,7 +12,7 @@ const e=`<template>\r
 import * as Cesium from 'cesium'\r
 import { onMounted, ref } from 'vue'\r
 \r
-const selectedType = ref('vec')\r
+const selectedType = ref('img')\r
 let viewer\r
 let imageryLayers = []\r
 \r
@@ -30,13 +30,12 @@ const toggleLayer = async (type, isInitializing = false) => {\r
   const layers = layerConfig[type]\r
   console.log('layers', layers)\r
   // 天地图影像\r
-  const tk = 'c3d89f4316203ec50d5240dd7b58da1b'\r
+  const tk = '385d54e243635e86f2dcf04d7675327f'\r
   const layerType = 'w'\r
   layers.forEach((layer) => {\r
     console.log('layer', layer)\r
     const imageryProvider = new Cesium.UrlTemplateImageryProvider({\r
-      url: 'https://t{z}.tianditu.gov.cn/' + layer + '_' + layerType + '/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=' + layer + '&STYLE=default&TILEMATRIXSET=' + layerType + '&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=' + tk,\r
-      subdomains: ['0', '1', '2', '3']\r
+      url: 'https://t0.tianditu.gov.cn/' + layer + '_' + layerType + '/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=' + layer + '&STYLE=default&TILEMATRIXSET=' + layerType + '&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=' + tk\r
     })\r
     const currentLayer = viewer.imageryLayers.addImageryProvider(imageryProvider)\r
     imageryLayers.push(currentLayer)\r
@@ -61,14 +60,14 @@ onMounted(() => {\r
     shouldAnimate: false, // 初始化是否开始动画\r
     baseLayer: false\r
   })\r
-  viewer.scene.globe.maximumScreenSpaceError = 1.4 // 减少屏幕空间误差，提高渲染质量\r
+  viewer.scene.globe.maximumScreenSpaceError = 1.8 // 减少屏幕空间误差，提高渲染质量\r
   // 切换图层\r
   toggleLayer(selectedType.value, true)\r
 \r
   // 定位中国范围\r
-  const rectangle = Cesium.Rectangle.fromDegrees(73.66, 3.86, 135.05, 53.55)\r
+  const position = Cesium.Cartesian3.fromDegrees(116.38949654287501, 39.906638611739446, 58000)\r
   viewer.camera.flyTo({\r
-    destination: rectangle,\r
+    destination: position,\r
     orientation: {\r
       heading: Cesium.Math.toRadians(0),\r
       pitch: Cesium.Math.toRadians(-90),\r

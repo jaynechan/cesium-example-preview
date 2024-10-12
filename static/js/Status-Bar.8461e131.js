@@ -1,37 +1,20 @@
 const e=`<template>\r
   <div class="container">\r
-    <div class="btn_wrapper">\r
-      <el-button type="primary" size="small" @click="toggleLayer('img')">影像</el-button>\r
-      <el-button type="primary" size="small" @click="toggleLayer('vec')">电子地图</el-button>\r
-      <el-button type="primary" size="small" @click="toggleLayer('midnight')">暗夜蓝</el-button>\r
+    <div class="cesiumContainer" id="cesiumContainer">\r
+      <StatusBar />\r
     </div>\r
-    <div class="cesiumContainer" id="cesiumContainer"></div>\r
   </div>\r
 </template>\r
 \r
 <script setup>\r
 import * as Cesium from 'cesium'\r
-import { onMounted, ref } from 'vue'\r
+import { onMounted } from 'vue'\r
+const { setMainViewer } = useViewerHook()\r
 \r
-const selectedType = ref('vec')\r
 let viewer\r
-let currentLayer\r
 \r
-const toggleLayer = (type, isInitializing = false) => {\r
-  if (selectedType.value === type && !isInitializing) return\r
-  if (currentLayer) {\r
-    viewer.imageryLayers.remove(currentLayer)\r
-  }\r
-  selectedType.value = type\r
-  const imageryProvider = new BaiduImageryProvider({\r
-    style: type,\r
-    crs: 'WGS84',\r
-    scaler: 2\r
-  })\r
-  currentLayer = viewer.imageryLayers.addImageryProvider(imageryProvider)\r
-}\r
-\r
-onMounted(() => {\r
+onMounted(async () => {\r
+  Cesium.Ion.defaultAccessToken = CesiumAccessTokenConf.accessToken\r
   viewer = new Cesium.Viewer('cesiumContainer', {\r
     animation: false, // 是否创建动画小器件，左下角仪表\r
     baseLayerPicker: false, // 是否显示图层选择器\r
@@ -46,41 +29,46 @@ onMounted(() => {\r
     navigationHelpButton: false, // 是否显示右上角的帮助按钮\r
     navigationInstructionsInitiallyVisible: false,\r
     scene3DOnly: false, // 如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源\r
-    shouldAnimate: false, // 初始化是否开始动画\r
-    baseLayer: false\r
+    shouldAnimate: false // 初始化是否开始动画\r
   })\r
-  window.viewer = viewer\r
-  viewer.scene.globe.maximumScreenSpaceError = 1.4 // 减少屏幕空间误差，提高渲染质量\r
 \r
-  const position = Cesium.Cartesian3.fromDegrees(116.38949654287501, 39.906638611739446, 58000)\r
+  const control = viewer.scene.screenSpaceCameraController\r
+  control.tiltEventTypes = Cesium.CameraEventType.RIGHT_DRAG\r
+  control.zoomEventTypes = [\r
+    Cesium.CameraEventType.WHEEL,\r
+    Cesium.CameraEventType.PINCH\r
+  ]\r
+\r
+  setMainViewer(viewer)\r
+\r
+  const terrainProvider = await Cesium.createWorldTerrainAsync({\r
+    requestWaterMask: true,\r
+    requestVertexNormals: true\r
+  })\r
+  viewer.terrainProvider = terrainProvider\r
+\r
+  const position = Cesium.Cartesian3.fromDegrees(116.39193336893223, 39.89226623752287, 420)\r
   viewer.camera.setView({\r
     destination: position,\r
     orientation: {\r
       heading: 0,\r
-      pitch: Cesium.Math.toRadians(-90),\r
+      pitch: Cesium.Math.toRadians(-15),\r
       roll: 0\r
     }\r
   })\r
-\r
-  // 切换图层\r
-  toggleLayer(selectedType.value, true)\r
 })\r
+\r
 <\/script>\r
 <style scoped>\r
 .container {\r
   position: relative;\r
   width: 100%;\r
   height: 100%;\r
+\r
   .cesiumContainer {\r
     width: 100%;\r
     height: 100%;\r
     overflow: hidden\r
-  }\r
-  .btn_wrapper {\r
-    position: absolute;\r
-    left: 50px;\r
-    top: 10px;\r
-    z-index: 1;\r
   }\r
 }\r
 </style>\r

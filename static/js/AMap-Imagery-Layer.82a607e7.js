@@ -12,7 +12,7 @@ const e=`<template>\r
 import * as Cesium from 'cesium'\r
 import { onMounted, ref } from 'vue'\r
 \r
-const selectedType = ref('img')\r
+const selectedType = ref('vec')\r
 let viewer\r
 let currentLayer\r
 \r
@@ -48,6 +48,16 @@ onMounted(() => {\r
     baseLayer: false\r
   })\r
   viewer.scene.globe.maximumScreenSpaceError = 1.4 // 减少屏幕空间误差，提高渲染质量\r
+\r
+  const position = Cesium.Cartesian3.fromDegrees(116.38949654287501, 39.906638611739446, 58000)\r
+  viewer.camera.setView({\r
+    destination: position,\r
+    orientation: {\r
+      heading: 0,\r
+      pitch: Cesium.Math.toRadians(-90),\r
+      roll: 0\r
+    }\r
+  })\r
 \r
   // 切换图层\r
   toggleLayer(selectedType.value, true)\r

@@ -27,6 +27,16 @@ const toggleLayer = (type, isInitializing = false) => {\r
     crs: 'WGS84'\r
   })\r
   currentLayer = viewer.imageryLayers.addImageryProvider(imageryProvider)\r
+\r
+  const position = Cesium.Cartesian3.fromDegrees(116.38949654287501, 39.906638611739446, 58000)\r
+  viewer.camera.setView({\r
+    destination: position,\r
+    orientation: {\r
+      heading: 0,\r
+      pitch: Cesium.Math.toRadians(-90),\r
+      roll: 0\r
+    }\r
+  })\r
 }\r
 \r
 onMounted(() => {\r
