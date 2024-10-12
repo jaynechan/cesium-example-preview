@@ -33,6 +33,7 @@ onMounted(async () => {\r
   const scene = viewer.scene\r
   const resource = await Cesium.IonResource.fromAssetId(1633341)\r
   const tileset = await Cesium.Cesium3DTileset.fromUrl(resource)\r
+  tileset.maximumScreenSpaceError = 1\r
   changeHeight(tileset, 60)\r
   scene.primitives.add(tileset)\r
   viewer.flyTo(tileset, {\r
