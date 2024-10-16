@@ -56,10 +56,10 @@ onMounted(async () => {\r
 \r
 function toggleSkybox(type) {\r
   const skyboxConf = {\r
-    'blue-sky': SkyBoxResource.GroundSkyBoxBlueSky,\r
-    'sun': SkyBoxResource.GroundSkyBoxSun,\r
-    'sunset-glow': SkyBoxResource.GroundSkyBoxSunsetGlow,\r
-    'night': SkyBoxResource.GroundSkyBoxNight\r
+    'blue-sky': Resource.SkyBoxResource.GroundSkyBoxBlueSky,\r
+    'sun': Resource.SSkyBoxResource.GroundSkyBoxSun,\r
+    'sunset-glow': Resource.SSkyBoxResource.GroundSkyBoxSunsetGlow,\r
+    'night': Resource.SSkyBoxResource.GroundSkyBoxNight\r
   }\r
   const skyboxResource = skyboxConf[type]\r
   if (!skyboxResource) {\r
@@ -68,7 +68,7 @@ function toggleSkybox(type) {\r
   }\r
   // 天空盒\r
   const defaultSkyBox = viewer.scene.skyBox\r
-  const currentSkyBox = new GroundSkyBox(viewer, {\r
+  const currentSkyBox = new Effect.GroundSkyBox(viewer, {\r
     sources: skyboxResource,\r
     defaultSkyBox: defaultSkyBox\r
   })\r

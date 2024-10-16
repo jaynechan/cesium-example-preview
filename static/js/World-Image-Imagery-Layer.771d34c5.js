@@ -27,7 +27,7 @@ onMounted(() => {\r
   })\r
 \r
   const imageryProvider = new Cesium.SingleTileImageryProvider({\r
-    url: BaseMapWorld_Image,\r
+    url: Resource.BaseMapWorld_Image,\r
     tileWidth: 256,\r
     tileHeight: 256\r
   })\r

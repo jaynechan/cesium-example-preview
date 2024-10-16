@@ -23,13 +23,13 @@ const toggleLayer = (type, isInitializing = false) => {\r
   }\r
   selectedType.value = type\r
   if (type === 'img') {\r
-    const imageryProvider = new SuperMapImagryProvider({\r
+    const imageryProvider = new ImageryLayers.SuperMapImagryProvider({\r
       url: 'https://www.supermapol.com/realspace/services/map-sample/rest/maps/WorldMap',\r
       epsgcode: 4326\r
     })\r
     currentLayer = viewer.imageryLayers.addImageryProvider(imageryProvider.delegate)\r
   } else {\r
-    const imageryProvider = new SuperMapImagryProvider({\r
+    const imageryProvider = new ImageryLayers.SuperMapImagryProvider({\r
       url: 'https://www.supermapol.com/realspace/services/map-China400/rest/maps/China400',\r
       epsgcode: 3857\r
     })\r

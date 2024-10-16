@@ -6,7 +6,7 @@ const e=`<template>\r
 import * as Cesium from 'cesium'\r
 import { onMounted, ref } from 'vue'\r
 \r
-const BackGroundImg = ref(SceneBackGroundImg)\r
+const BackGroundImg = ref(Resource.SceneBackGroundImg)\r
 \r
 onMounted(() => {\r
   Cesium.Ion.defaultAccessToken = CesiumAccessTokenConf.accessToken\r

@@ -23,7 +23,7 @@ const toggleLayer = (type, isInitializing = false) => {\r
     viewer.imageryLayers.remove(currentLayer)\r
   }\r
   selectedType.value = type\r
-  const imageryProvider = new BaiduImageryProvider({\r
+  const imageryProvider = new ImageryLayers.BaiduImageryProvider({\r
     style: type,\r
     crs: 'WGS84',\r
     scaler: 2\r

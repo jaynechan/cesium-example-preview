@@ -22,7 +22,7 @@ const toggleLayer = (type, isInitializing = false) => {\r
     viewer.imageryLayers.remove(currentLayer)\r
   }\r
   selectedType.value = type\r
-  const imageryProvider = new TencentImageryProvider({\r
+  const imageryProvider = new ImageryLayers.TencentImageryProvider({\r
     style: type,\r
     crs: 'WGS84'\r
   })\r

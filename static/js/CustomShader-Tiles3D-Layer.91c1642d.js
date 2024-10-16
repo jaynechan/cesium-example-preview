@@ -1,14 +1,40 @@
 const r=`<template>\r
   <div class="container">\r
+    <div class="btn_wrapper">\r
+      <el-color-picker v-model="color" show-alpha :predefine="predefineColors" @active-change="changeColor"/>\r
+    </div>\r
     <div class="cesiumContainer" id="cesiumContainer"></div>\r
   </div>\r
 </template>\r
 \r
 <script setup>\r
 import * as Cesium from 'cesium'\r
-import { onMounted } from 'vue'\r
+import { onMounted, ref } from 'vue'\r
 \r
-let viewer\r
+let viewer, tileset\r
+\r
+const color = ref('rgb(51, 153, 255)')\r
+const predefineColors = ref([\r
+  '#ff4500',\r
+  '#ff8c00',\r
+  '#ffd700',\r
+  '#90ee90',\r
+  '#00ced1',\r
+  '#1e90ff',\r
+  '#c71585',\r
+  'rgba(255, 69, 0, 0.68)',\r
+  'rgb(255, 120, 0)',\r
+  '#c7158577'\r
+])\r
+\r
+const changeColor = (value) => {\r
+  const v = Cesium.Color.fromCssColorString(value)\r
+  tileset.style = new Cesium.Cesium3DTileStyle({\r
+    color: {\r
+      conditions: [['true', \`color('\${v.toCssColorString()}',\${v.alpha})\`]]\r
+    }\r
+  })\r
+}\r
 \r
 function filterLayer(options) {\r
   const { bInvertColor, bFilterColor, filterColor } = options\r
@@ -82,7 +108,7 @@ onMounted(async () => {\r
     filterColor: '#0044aa'\r
   }\r
 \r
-  const imageryProvider = new AmapImageryProvider({\r
+  const imageryProvider = new ImageryLayers.AmapImageryProvider({\r
     style: 'vec',\r
     crs: 'WGS84'\r
   })\r
@@ -118,9 +144,10 @@ onMounted(async () => {\r
   viewer.scene.globe.baseColor = new Cesium.Color(0.0, 0.0, 0.0, 0)\r
 \r
   // 白模加载\r
-  const tileset = await Cesium.Cesium3DTileset.fromIonAssetId(CesiumIonAssetConf.HZ_BAIMO_WITH_HEIGHT)\r
-  const customShader = CustomShaderSetting.Building3Dtiles.getBlueCustomShader()\r
+  tileset = await Cesium.Cesium3DTileset.fromIonAssetId(CesiumIonAssetConf.HZ_BAIMO_WITH_HEIGHT)\r
+  const customShader = Effect.Building3Dtiles.getBlueCustomShader()\r
   tileset.customShader = customShader\r
+  changeColor(color.value)\r
   viewer.scene.primitives.add(tileset)\r
   viewer.zoomTo(tileset)\r
 })\r
@@ -135,6 +162,13 @@ onMounted(async () => {\r
     width: 100%;\r
     height: 100%;\r
     overflow: hidden\r
+  }\r
+\r
+  .btn_wrapper {\r
+    position: absolute;\r
+    left: 50px;\r
+    top: 10px;\r
+    z-index: 1;\r
   }\r
 }\r
 </style>\r

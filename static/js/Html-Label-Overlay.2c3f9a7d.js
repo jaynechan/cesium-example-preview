@@ -1,18 +1,22 @@
 const e=`<template>\r
   <div class="container">\r
     <div class="btn_wrapper">\r
-      <el-button type="primary" size="small" @click="toggleLayer('img')">影像</el-button>\r
-      <el-button type="primary" size="small" @click="toggleLayer('vec')">电子地图</el-button>\r
+      <el-button type="default" size="small" @click="toggleLayer('img')">影像</el-button>\r
+      <el-button type="default" size="small" @click="toggleLayer('vec')">电子地图</el-button>\r
     </div>\r
-    <div class="cesiumContainer" id="cesiumContainer"></div>\r
+    <div class="cesiumContainer" id="cesiumContainer">\r
+      <StatusBar />\r
+    </div>\r
   </div>\r
 </template>\r
 \r
 <script setup>\r
 import * as Cesium from 'cesium'\r
 import { onMounted, ref } from 'vue'\r
+const { setMainViewer } = useViewerHook()\r
+Cesium.Ion.defaultAccessToken = CesiumAccessTokenConf.accessToken\r
 \r
-const selectedType = ref('vec')\r
+const selectedType = ref('img')\r
 let viewer\r
 let currentLayer\r
 \r
@@ -29,7 +33,7 @@ const toggleLayer = (type, isInitializing = false) => {\r
   currentLayer = viewer.imageryLayers.addImageryProvider(imageryProvider)\r
 }\r
 \r
-onMounted(() => {\r
+onMounted(async () => {\r
   viewer = new Cesium.Viewer('cesiumContainer', {\r
     animation: false, // 是否创建动画小器件，左下角仪表\r
     baseLayerPicker: false, // 是否显示图层选择器\r
@@ -47,20 +51,63 @@ onMounted(() => {\r
     shouldAnimate: false, // 初始化是否开始动画\r
     baseLayer: false\r
   })\r
-  viewer.scene.globe.maximumScreenSpaceError = 1.4 // 减少屏幕空间误差，提高渲染质量\r
+  const control = viewer.scene.screenSpaceCameraController\r
+  control.tiltEventTypes = Cesium.CameraEventType.RIGHT_DRAG\r
+  control.zoomEventTypes = [\r
+    Cesium.CameraEventType.WHEEL,\r
+    Cesium.CameraEventType.PINCH\r
+  ]\r
+  setMainViewer(viewer)\r
 \r
-  const position = Cesium.Cartesian3.fromDegrees(116.38949654287501, 39.906638611739446, 58000)\r
-  viewer.camera.setView({\r
-    destination: position,\r
-    orientation: {\r
-      heading: 0,\r
-      pitch: Cesium.Math.toRadians(-90),\r
-      roll: 0\r
+  const entity = new Cesium.Entity({\r
+    position: Cesium.Cartesian3.fromDegrees(111.313480, 23.477259),\r
+    point: {\r
+      color: Cesium.Color.YELLOW,\r
+      pixelSize: 12,\r
+      heightReference: Cesium.HeightReference.CLAMP_TO_GROUND\r
     }\r
   })\r
+  viewer.entities.add(entity)\r
 \r
   // 切换图层\r
   toggleLayer(selectedType.value, true)\r
+\r
+  // 3dtiles\r
+  const scene = viewer.scene\r
+  const tileset = await Cesium.Cesium3DTileset.fromIonAssetId(CesiumIonAssetConf.WZ_3DTILES)\r
+  tileset.maximumScreenSpaceError = 1\r
+  changeHeight(tileset, 60)\r
+  scene.primitives.add(tileset)\r
+  viewer.zoomTo(tileset)\r
+\r
+  const overlay = new Overlay.HtmlOverlay({\r
+    longitude: 111.313480,\r
+    latitude: 23.477259,\r
+    height: 0\r
+  }, '广厦北苑楼', true)\r
+  overlay.addToViewer(viewer)\r
+\r
+  function changeHeight(tileset, height) {\r
+    const cartographic = Cesium.Cartographic.fromCartesian(\r
+      tileset.boundingSphere.center\r
+    )\r
+    const surface = Cesium.Cartesian3.fromRadians(\r
+      cartographic.longitude,\r
+      cartographic.latitude,\r
+      0.0\r
+    )\r
+    const offset = Cesium.Cartesian3.fromRadians(\r
+      cartographic.longitude,\r
+      cartographic.latitude,\r
+      height\r
+    )\r
+    const translation = Cesium.Cartesian3.subtract(\r
+      offset,\r
+      surface,\r
+      new Cesium.Cartesian3()\r
+    )\r
+    tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation)\r
+  }\r
 })\r
 <\/script>\r
 <style scoped>\r
@@ -68,11 +115,13 @@ onMounted(() => {\r
   position: relative;\r
   width: 100%;\r
   height: 100%;\r
+\r
   .cesiumContainer {\r
     width: 100%;\r
     height: 100%;\r
     overflow: hidden\r
   }\r
+\r
   .btn_wrapper {\r
     position: absolute;\r
     left: 50px;\r

@@ -27,7 +27,7 @@ import * as Cesium from 'cesium'\r
 import { onMounted, ref, computed } from 'vue'\r
 \r
 const materialList = ref([])\r
-const activateIndex = ref(-1)\r
+const activateIndex = ref(5)\r
 const currentUrl = computed(() => {\r
   if (activateIndex.value > -1) {\r
     return materialList.value[activateIndex.value]\r
@@ -39,7 +39,7 @@ const currentUrl = computed(() => {\r
 let i = 1\r
 const list = []\r
 while (i < 27) {\r
-  const url = \`\${MaterialResource.buildingMaterialPath}/000\${i}.jpg\`\r
+  const url = \`\${Resource.MaterialResource.buildingMaterialPath}/000\${i}.jpg\`\r
   list.push(url)\r
   i++\r
 }\r
@@ -53,7 +53,7 @@ const setMaterial = (i) => {\r
 \r
 const preview = () => {\r
   if (tileset) {\r
-    CustomShaderSetting.Building3Dtiles.setBuildingCustomShader(tileset, currentUrl.value)\r
+    Effect.Building3Dtiles.setBuildingCustomShader(tileset, currentUrl.value)\r
   }\r
 }\r
 \r
@@ -93,9 +93,8 @@ onMounted(async () => {\r
     Cesium.CameraEventType.PINCH\r
   ]\r
 \r
-  const imageryProvider = new AmapImageryProvider({\r
-    style: 'img',\r
-    crs: 'WGS84'\r
+  const imageryProvider = new Cesium.UrlTemplateImageryProvider({\r
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'\r
   })\r
   viewer.imageryLayers.addImageryProvider(imageryProvider)\r
 \r
@@ -103,6 +102,7 @@ onMounted(async () => {\r
   tileset = await Cesium.Cesium3DTileset.fromIonAssetId(CesiumIonAssetConf.HZ_BAIMO_WITH_HEIGHT)\r
   viewer.scene.primitives.add(tileset)\r
   viewer.zoomTo(tileset)\r
+  preview()\r
 })\r
 <\/script>\r
 <style scoped>\r
