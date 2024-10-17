@@ -1,9 +1,6 @@
 const e=`<template>\r
   <div class="container">\r
     <div class="cesiumContainer" id="cesiumContainer">\r
-      <InfoDialog title="通视分析" class="dialog">\r
-        <ViewShed />\r
-      </InfoDialog>>\r
     </div>\r
   </div>\r
 </template>\r
@@ -32,56 +29,54 @@ onMounted(async () => {\r
     navigationInstructionsInitiallyVisible: false,\r
     scene3DOnly: false, // 如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源\r
     shouldAnimate: false, // 初始化是否开始动画\r
-    contextOptions: { webgl: { alpha: true, preserveDrawingBuffer: true }, requestWebgl1: true } // webgl1\r
+    contextOptions: { webgl: { alpha: true, preserveDrawingBuffer: true }}\r
   })\r
-\r
-  const control = viewer.scene.screenSpaceCameraController\r
-  control.tiltEventTypes = Cesium.CameraEventType.RIGHT_DRAG\r
-  control.zoomEventTypes = [\r
-    Cesium.CameraEventType.WHEEL,\r
-    Cesium.CameraEventType.PINCH\r
-  ]\r
-  viewer.scene.globe.depthTestAgainstTerrain = true\r
-\r
   setMainViewer(viewer)\r
 \r
-  const terrainProvider = await Cesium.createWorldTerrainAsync({\r
-    requestWaterMask: true,\r
-    requestVertexNormals: true\r
+  const vecImageryProvider = new ImageryLayers.AmapImageryProvider({\r
+    style: 'vec',\r
+    crs: 'WGS84'\r
   })\r
-  viewer.terrainProvider = terrainProvider\r
-\r
+  const imageryProvider = new ImageryLayers.AmapImageryProvider({\r
+    style: 'img',\r
+    crs: 'WGS84'\r
+  })\r
+  viewer.imageryLayers.addImageryProvider(vecImageryProvider)\r
+  const imageryLayer = viewer.imageryLayers.addImageryProvider(imageryProvider)\r
   // 3dtiles\r
   const scene = viewer.scene\r
-  const resource = await Cesium.IonResource.fromAssetId(CesiumIonAssetConf.WZ_3DTILES)\r
+  const resource = await Cesium.IonResource.fromAssetId(1633341)\r
   const tileset = await Cesium.Cesium3DTileset.fromUrl(resource)\r
   tileset.maximumScreenSpaceError = 1\r
-  changeHeight(tileset, 80)\r
+  changeHeight(tileset, 60)\r
   scene.primitives.add(tileset)\r
   viewer.zoomTo(tileset)\r
-\r
-  function changeHeight(tileset, height) {\r
-    const cartographic = Cesium.Cartographic.fromCartesian(\r
-      tileset.boundingSphere.center\r
-    )\r
-    const surface = Cesium.Cartesian3.fromRadians(\r
-      cartographic.longitude,\r
-      cartographic.latitude,\r
-      0.0\r
-    )\r
-    const offset = Cesium.Cartesian3.fromRadians(\r
-      cartographic.longitude,\r
-      cartographic.latitude,\r
-      height\r
-    )\r
-    const translation = Cesium.Cartesian3.subtract(\r
-      offset,\r
-      surface,\r
-      new Cesium.Cartesian3()\r
-    )\r
-    tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation)\r
-  }\r
+  // 卷帘\r
+  const rollerShuter = new Analysis.RollerShuter(viewer)\r
+  rollerShuter.setRollerShutter([imageryLayer, tileset])\r
 })\r
+\r
+function changeHeight(tileset, height) {\r
+  const cartographic = Cesium.Cartographic.fromCartesian(\r
+    tileset.boundingSphere.center\r
+  )\r
+  const surface = Cesium.Cartesian3.fromRadians(\r
+    cartographic.longitude,\r
+    cartographic.latitude,\r
+    0.0\r
+  )\r
+  const offset = Cesium.Cartesian3.fromRadians(\r
+    cartographic.longitude,\r
+    cartographic.latitude,\r
+    height\r
+  )\r
+  const translation = Cesium.Cartesian3.subtract(\r
+    offset,\r
+    surface,\r
+    new Cesium.Cartesian3()\r
+  )\r
+  tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation)\r
+}\r
 \r
 <\/script>\r
 <style scoped>\r
@@ -90,21 +85,10 @@ onMounted(async () => {\r
   height: 100%;\r
 \r
   .cesiumContainer {\r
-    position: unset;\r
+    position: relative;\r
     width: 100%;\r
     height: 100%;\r
     overflow: hidden\r
-  }\r
-\r
-  .btn_wrapper {\r
-    position: absolute;\r
-    left: 50px;\r
-    top: 10px;\r
-    z-index: 1;\r
-  }\r
-\r
-  .dialog {\r
-    width: 380px;\r
   }\r
 }\r
 </style>\r

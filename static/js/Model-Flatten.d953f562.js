@@ -120,14 +120,8 @@ onMounted(async () => {\r
     Cesium.CameraEventType.WHEEL,\r
     Cesium.CameraEventType.PINCH\r
   ]\r
-\r
+  viewer.scene.globe.depthTestAgainstTerrain = true\r
   setMainViewer(viewer)\r
-\r
-  const terrainProvider = await Cesium.createWorldTerrainAsync({\r
-    requestWaterMask: true,\r
-    requestVertexNormals: true\r
-  })\r
-  viewer.terrainProvider = terrainProvider\r
 \r
   // 3dtiles\r
   const scene = viewer.scene\r
