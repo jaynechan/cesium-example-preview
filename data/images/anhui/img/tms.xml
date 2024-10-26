@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<tilemap tilemapservice="http://tms.osgeo.org/1.0.0" version="1.0.0">
+    <title>安徽省(墨卡托原始瓦片)</title>
+    <abstract>Rivermap Export TMS</abstract>
+    <srs>OSGEO:41001</srs>
+    <vsrs></vsrs>
+    <boundingbox minx="12758257.265135340392590" miny="3404810.987934890668839" maxx="13345293.642365496605635" maxy="4148390.399093087762594" />
+    <origin x="12758257.265135340392590" y="3404810.987934890668839" />
+    <tileformat extension="png" mime-type="image/png" width="256" height="256" />
+    <tilesets profile="global-mercator">
+        <tileset href="" order="0" units-per-pixel="156543.032000000" />
+        <tileset href="" order="1" units-per-pixel="78271.516000000" />
+        <tileset href="" order="2" units-per-pixel="39135.758000000" />
+        <tileset href="" order="3" units-per-pixel="19567.879000000" />
+        <tileset href="" order="4" units-per-pixel="9783.939500000" />
+        <tileset href="" order="5" units-per-pixel="4891.969750000" />
+        <tileset href="" order="6" units-per-pixel="2445.984875000" />
+        <tileset href="" order="7" units-per-pixel="1222.992437500" />
+        <tileset href="" order="8" units-per-pixel="611.496218750" />
+        <tileset href="" order="9" units-per-pixel="305.748109375" />
+        <tileset href="" order="10" units-per-pixel="152.874054688" />
+        <tileset href="" order="11" units-per-pixel="76.437027344" />
+        <tileset href="" order="12" units-per-pixel="38.218513672" />
+        <tileset href="" order="13" units-per-pixel="19.109256836" />
+        <tileset href="" order="14" units-per-pixel="9.554628418" />
+        <tileset href="" order="15" units-per-pixel="4.777314209" />
+        <tileset href="" order="16" units-per-pixel="2.388657104" />
+        <tileset href="" order="17" units-per-pixel="1.194328552" />
+        <tileset href="" order="18" units-per-pixel="0.597164276" />
+        <tileset href="" order="19" units-per-pixel="0.298582138" />
+        <tileset href="" order="20" units-per-pixel="0.149291069" />
+        <tileset href="" order="21" units-per-pixel="0.074645535" />
+    </tilesets>
+</tilemap>
